@@ -7,14 +7,52 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
+.wrap {
+    position: relative;
+    margin-top: 50px;
+    height: 100%;
 }
 
 .canvas {
-    width: 400px;
-    height: 400px;
+    display: block;
+    width: 600px;
+    height: 600px;
     /* rotate: 30deg; */
     /* margin-right: -14px; */
+}
+
+.hexagon {
+    --background: #389ce4;
+    width: 100px;
+    height: 55px;
+    background: var(--background);
+    color: azure;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hexagon:before {
+    content: '';
+    position: absolute;
+    top: -25px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-bottom: 26px solid var(--background);
+}
+
+.hexagon:after {
+    content: '';
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-top: 26px solid var(--background);
 }

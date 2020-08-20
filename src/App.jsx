@@ -8,17 +8,46 @@ const SIDE_LENGTH = 55; //длина стороны в пикселях
 const hexHeight = Math.sin(HEXAGON_ANGLE) * SIDE_LENGTH;
 const hexRadius = 52; //Math.cos(HEXAGON_ANGLE) * SIDE_LENGTH;
 const hexRectangleWidth = 104;
+const COLOR = '#389ce4';
+const LESS = [
+    [-1, -1],
+    [0, -1],
+    [1, 0],
+    [1, 1],
+    [0, 1],
+    [-1, 0],
+];
+const EVEN = [
+    [-1, -1],
+    [0, -1],
+    [1, 0],
+    [0, 1],
+    [-1, 1],
+    [-1, 0],
+];
+const MORE = [
+    [0, -1],
+    [1, -1],
+    [1, 0],
+    [0, 1],
+    [-1, 1],
+    [-1, 0],
+];
 
 const App = () => {
-    const [hexagonSettings, setHexagonSettings] = useState([]);
-    const [hexagonMap, setHexagonMap] = useState(new Map());
+    const [hexagon, setHexagon] = useState({
+        settings: [],
+        map: new Map(),
+        marked: [],
+    });
+
+    const L = 3,
+        M = 5,
+        N = 7;
 
     useEffect(() => {
         const hexMap = new Map();
         const result = [];
-        const L = 3,
-            M = 5,
-            N = 7;
 
         let count = N;
 
@@ -32,7 +61,7 @@ const App = () => {
             x = l * hexRadius;
             y = (SIDE_LENGTH + hexHeight) * (L - l);
             for (let i = 0; i < count; i++) {
-                const id = col++ + ' ' + row;
+                const id = col + ' ' + row;
                 result.push({
                     x: x + hexRectangleWidth * i - hexRadius,
                     y,
@@ -43,6 +72,7 @@ const App = () => {
                     id,
                 });
                 hexMap.set(id, result[result.length - 1]);
+                col++;
             }
             col = 1;
             row++;
@@ -57,34 +87,108 @@ const App = () => {
             y = (SIDE_LENGTH + hexHeight) * (L + m - 1);
             if (M - m < L) count--;
             for (let i = 0; i < count; i++) {
+                const id = col + ' ' + row;
                 result.push({
                     x: x + hexRectangleWidth * i,
                     y,
                     color: '#389ce4',
                     col,
                     row,
-                    value: col++ + ' ' + row,
-                    id: col - 1 + ' ' + row,
+                    value: id,
+                    // value: col++ + ' ' + row,
+                    id,
                 });
+                hexMap.set(id, result[result.length - 1]);
+                col++;
             }
             col = 1;
             row++;
         }
-        // console.info(hexMap);
-        setHexagonMap(hexMap);
-        setHexagonSettings(result);
+
+        setHexagon({...hexagon, settings: result, map: hexMap});
     }, []);
 
-    // const getHexagonSettingsSet = () => {};
+    const randColor = () => {
+        let r = Math.floor(Math.random() * 256),
+            g = Math.floor(Math.random() * 256),
+            b = Math.floor(Math.random() * 256);
+
+        return `rgb( ${r}, ${g}, ${b})`;
+    };
+
+    const checkHexagon = (curHex, markedHex) => {
+        if (curHex.row === markedHex.row && curHex.col === markedHex.col) {
+            return true;
+        }
+
+        return false;
+    };
+
+    const markedHex = (marked, cur, map, type) => {
+        marked.forEach((element) => {
+            for (let i = 0; i < type.length; i++) {
+                const settings = {
+                    row: cur.row + type[i][1],
+                    col: cur.col + type[i][0],
+                };
+                if (checkHexagon(settings, element.id)) {
+                    const color = element.id.color;
+                    marked.push({
+                        id: cur,
+                        domain: color,
+                    });
+                    cur.color = color;
+                    cur.value = '1';
+                    map.set(cur.id, cur);
+                    break;
+                }
+            }
+        });
+
+        return [marked, map];
+    };
+
+    const paint = (notVisited) => {
+        let marked = hexagon.marked;
+        let map = hexagon.map;
+        for (let i = 0; i < notVisited.length; i++) {
+            const cur = notVisited[i];
+            if (marked.length === 0) {
+                const color = randColor();
+                marked.push({
+                    id: cur,
+                    domain: color,
+                });
+                cur.color = color;
+                cur.value = '1';
+                map.set(cur.id, cur);
+            } else {
+                if (cur.row < L) {
+                    markedHex(marked, cur, map, LESS);
+                } else if (cur.row === L) {
+                    markedHex(marked, cur, map, EVEN);
+                } else {
+                    markedHex(marked, cur, map, MORE);
+                }
+            }
+        }
+        setHexagon({
+            ...hexagon,
+            map,
+            marked,
+        });
+    };
 
     const onClick = (e) => {
-        console.info(hexagonMap);
+        const currentHex = hexagon.map.get(e.target.id);
+
+        paint([currentHex]);
     };
 
     return (
         <section className="App">
             <div className="wrap" onClick={onClick}>
-                {hexagonSettings.map((settings) => (
+                {hexagon.settings.map((settings) => (
                     <CanvasHexagon
                         key={`${settings.x}:${settings.y}`}
                         settings={settings}

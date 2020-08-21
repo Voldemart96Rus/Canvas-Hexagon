@@ -13,7 +13,7 @@ import {
     LESS,
     EVEN,
     MORE,
-    GAP,
+    // GAP,
     COLOR,
 } from './constants';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -27,6 +27,7 @@ const App = () => {
         map: new Map(),
         domains: new Map(),
         elementDomain: new Map(),
+        ar: [],
     });
     const [probability, setProbability] = useState(0);
     const [sizes, setSizes] = useState({
@@ -34,6 +35,9 @@ const App = () => {
         M: M_INITIAL_VALUE,
         N: N_INITIAL_VALUE,
     });
+    const elementDomain = new Map(hexagon.elementDomain);
+    const domains = new Map(hexagon.domains);
+    const map = new Map(hexagon.map);
 
     useEffect(() => {
         const {L, M, N} = sizes;
@@ -94,7 +98,13 @@ const App = () => {
             row++;
         }
 
-        setHexagon({...hexagon, settings: settings, map: hexMap});
+        setHexagon({
+            ...hexagon,
+            settings: settings,
+            map: hexMap,
+            domains: new Map(),
+            elementDomain: new Map(),
+        });
         // eslint-disable-next-line
     }, [sizes.L, sizes.M, sizes.N, sizes]);
 
@@ -106,64 +116,89 @@ const App = () => {
         return `rgb(${r}, ${g}, ${b})`;
     };
 
-    const updateDomains = (el) => {
+    const up = (el) => {
         const foundDomainIds = [];
-        const {elementDomain, domains, map} = hexagon;
 
-        // Если 0
-        if (el.value === '') {
-            let neighborOffsets;
-            if (el.row < sizes.L) neighborOffsets = LESS;
-            if (el.row === sizes.L) neighborOffsets = EVEN;
-            if (el.row > sizes.L) neighborOffsets = MORE;
+        // debugger;
+        let neighborOffsets;
+        if (el.row < sizes.L) neighborOffsets = LESS;
+        if (el.row === sizes.L) neighborOffsets = EVEN;
+        if (el.row > sizes.L) neighborOffsets = MORE;
 
-            // Цикл по соседям
-            neighborOffsets.forEach(([colOffset, rowOffset]) => {
-                const neighbor = {
-                    row: el.row + rowOffset,
-                    col: el.col + colOffset,
-                };
-                const neighborId = neighbor.col + ' ' + neighbor.row;
+        // Цикл по соседям
+        neighborOffsets.forEach(([colOffset, rowOffset]) => {
+            const neighbor = {
+                row: el.row + rowOffset,
+                col: el.col + colOffset,
+            };
+            const neighborId = neighbor.col + ' ' + neighbor.row;
 
-                // Если сосед входит в домен, сохраняем его
-                if (hexagon.elementDomain.has(neighborId)) {
-                    foundDomainIds.push(hexagon.elementDomain.get(neighborId));
-                }
+            // Если сосед входит в домен, сохраняем его
+            if (elementDomain.has(neighborId)) {
+                foundDomainIds.push(elementDomain.get(neighborId));
+            }
+        });
+
+        // Объединяем найденные домены в один домен
+        // TODO Использовать другой id
+        const newDomainId = Date.now();
+        const newDomain = {elements: [el], color: randColor()};
+        elementDomain.set(el.id, newDomainId);
+        // debugger;
+        new Set(foundDomainIds).forEach((domainId) => {
+            if (domains.get(domainId) === undefined) {
+            }
+            const domainElements = domains.get(domainId).elements;
+            newDomain.elements.push(...domainElements);
+            // Удаляем старый домен
+            domains.delete(domainId);
+            // Обновляем id домена у элементов старого домена
+            domainElements.forEach((el) => {
+                elementDomain.set(el.id, newDomainId);
             });
+        });
 
-            // Объединяем найденные домены в один домен
-            // TODO Использовать другой id
-            const newDomainId = Date.now();
-            const newDomain = {elements: [el], color: randColor()};
-            elementDomain.set(el.id, newDomainId);
+        // Красим элементы нового домена и обновляем значение
+        newDomain.elements.forEach((el) => {
+            const currentElement = map.get(el.id);
+            currentElement.color = newDomain.color;
+            currentElement.value = '1';
+        });
 
-            new Set(foundDomainIds).forEach((domainId) => {
-                const domainElements = hexagon.domains.get(domainId).elements;
-                newDomain.elements.push(...domainElements);
-                // Удаляем старый домен
-                domains.delete(domainId);
-                // Обновляем id домена у элементов старого домена
-                domainElements.forEach((el) => {
-                    elementDomain.set(el.id, newDomainId);
-                });
-            });
+        domains.set(newDomainId, newDomain);
+    };
 
-            // Красим элементы нового домена и обновляем значение
-            newDomain.elements.forEach((el) => {
-                const currentElement = map.get(el.id);
-                currentElement.color = newDomain.color;
-                currentElement.value = '1';
-            });
-
-            domains.set(newDomainId, newDomain);
-            setHexagon({...hexagon, map, domains, elementDomain});
+    const updateDomains = (notVisited) => {
+        for (let i = 0; i < notVisited.length; i++) {
+            const el = notVisited[i];
+            if (el.value === '') {
+                up(el);
+            }
         }
+        setHexagon({...hexagon, map, domains, elementDomain});
     };
 
     const onClick = (e) => {
         const currentHex = hexagon.map.get(e.target.id);
+        if (currentHex.value === '1') {
+            currentHex.color = COLOR;
+            currentHex.value = '';
+            const currentDomainId = elementDomain.get(currentHex.id);
+            elementDomain.delete(currentHex.id);
+            const elements = domains
+                .get(currentDomainId)
+                .elements.filter((item) => {
+                    item.value = '';
+                    elementDomain.delete(item.id);
+                    return item.id !== currentHex.id;
+                });
 
-        if (currentHex) updateDomains(currentHex);
+            domains.delete(currentDomainId);
+
+            updateDomains(elements);
+        } else if (currentHex) {
+            updateDomains([currentHex]);
+        }
     };
 
     return (

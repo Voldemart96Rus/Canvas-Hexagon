@@ -1,13 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import CanvasHexagon from './components/CanvasHexagon2';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import ModalForm from './components/ModalForm';
+import Container from 'react-bootstrap/Container';
 
 import {L_INITIAL_VALUE, M_INITIAL_VALUE, N_INITIAL_VALUE} from './constants';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './App.css';
+import Footer from './components/Footer';
 
 const HEXAGON_ANGLE = 0.523598776; //30 градусов в радианах
 const SIDE_LENGTH = 55; //длина стороны в пикселях
@@ -46,8 +45,6 @@ const App = () => {
         map: new Map(),
         marked: [],
     });
-
-    const [modalShow, setModalShow] = useState(true);
     const [probability, setProbability] = useState(0);
     const [sizes, setSizes] = useState({
         L: L_INITIAL_VALUE,
@@ -196,55 +193,28 @@ const App = () => {
         paint([currentHex]);
     };
 
-    const isProbabilityValid = (p) => 0.01 <= p && p <= 0.99;
-
-    const onProbabilityChange = (e) => {
-        const p = Number(e.target.value.trim());
-
-        if (isProbabilityValid(p)) setProbability(p);
-    };
-
     return (
-        <section className="App">
-            <div className="wrap">
-                <div onClick={onClick}>
-                    {hexagon.settings.map((settings) => (
-                        <CanvasHexagon
-                            key={`${settings.x}:${settings.y}`}
-                            settings={settings}
-                        />
-                    ))}
-                </div>
-
-                <Form>
-                    <Form.Group controlId="formBasicProbability">
-                        <Form.Label>Вероятность</Form.Label>
-                        <Form.Control
-                            type="number"
-                            placeholder="0,1"
-                            value={probability}
-                        />
-                    </Form.Group>
-                    <Button
-                        variant="dark"
-                        onClick={onProbabilityChange}
-                        disabled={isProbabilityValid(probability)}
-                    >
-                        Авто
-                    </Button>
-                </Form>
-
-                <Button variant="primary" onClick={() => setModalShow(true)}>
-                    Указать размеры
-                </Button>
-
-                <ModalForm
-                    show={modalShow}
-                    onHide={() => setModalShow(false)}
-                    updateSizes={() => setSizes(sizes)}
-                />
-            </div>
-        </section>
+        <>
+            <main className="App">
+                <Container>
+                    <div className="wrap">
+                        <div onClick={onClick}>
+                            {hexagon.settings.map((settings) => (
+                                <CanvasHexagon
+                                    key={`${settings.x}:${settings.y}`}
+                                    settings={settings}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </Container>
+            </main>
+            <Footer
+                sizes={sizes}
+                onSizesChange={(sizes) => setSizes(sizes)}
+                onProbabilityChange={(p) => setProbability(p)}
+            />
+        </>
     );
 };
 

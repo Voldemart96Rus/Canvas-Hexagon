@@ -1,0 +1,10 @@
+.footer {
+    position: fixed;
+    width: 100vw;
+    bottom: 0;
+    background: #ffffff80;
+}
+
+.probability-input {
+    width: 12rem;
+}

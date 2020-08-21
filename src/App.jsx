@@ -1,45 +1,27 @@
 import React, {useState, useEffect} from 'react';
-import CanvasHexagon from './components/CanvasHexagon2';
+import Hexagon from './components/Hexagon';
 import Container from 'react-bootstrap/Container';
 
-import {L_INITIAL_VALUE, M_INITIAL_VALUE, N_INITIAL_VALUE} from './constants';
+import {
+    L_INITIAL_VALUE,
+    M_INITIAL_VALUE,
+    N_INITIAL_VALUE,
+    SIDE_LENGTH,
+    HEX_HEIGHT,
+    HEX_RADIUS,
+    HEX_RECTANGLE_WIDTH,
+    LESS,
+    EVEN,
+    MORE,
+    GAP,
+} from './constants';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './App.css';
 import Footer from './components/Footer';
 
-const HEXAGON_ANGLE = 0.523598776; //30 градусов в радианах
-const SIDE_LENGTH = 55; //длина стороны в пикселях
-const hexHeight = Math.sin(HEXAGON_ANGLE) * SIDE_LENGTH;
-const hexRadius = 52; //Math.cos(HEXAGON_ANGLE) * SIDE_LENGTH;
-const hexRectangleWidth = 104;
-const COLOR = '#389ce4';
-const LESS = [
-    [-1, -1],
-    [0, -1],
-    [1, 0],
-    [1, 1],
-    [0, 1],
-    [-1, 0],
-];
-const EVEN = [
-    [-1, -1],
-    [0, -1],
-    [1, 0],
-    [0, 1],
-    [-1, 1],
-    [-1, 0],
-];
-const MORE = [
-    [0, -1],
-    [1, -1],
-    [1, 0],
-    [0, 1],
-    [-1, 1],
-    [-1, 0],
-];
-
 const App = () => {
+    console.info(HEX_RECTANGLE_WIDTH);
     const [hexagon, setHexagon] = useState({
         settings: [],
         map: new Map(),
@@ -66,12 +48,12 @@ const App = () => {
         let col = 1;
 
         for (let l = L; l > 0; l--) {
-            x = l * hexRadius;
-            y = (SIDE_LENGTH + hexHeight) * (L - l);
+            x = l * HEX_RADIUS;
+            y = (SIDE_LENGTH + HEX_HEIGHT) * (L - l);
             for (let i = 0; i < count; i++) {
                 const id = col + ' ' + row;
                 result.push({
-                    x: x + hexRectangleWidth * i - hexRadius,
+                    x: x + HEX_RECTANGLE_WIDTH * i - HEX_RADIUS, // + GAP * col
                     y,
                     color: '#389ce4',
                     col,
@@ -91,13 +73,13 @@ const App = () => {
         count = N + L - 1;
 
         for (let m = 1; m < M; m++) {
-            x = m * hexRadius;
-            y = (SIDE_LENGTH + hexHeight) * (L + m - 1);
+            x = m * HEX_RADIUS;
+            y = (SIDE_LENGTH + HEX_HEIGHT) * (L + m - 1);
             if (M - m < L) count--;
             for (let i = 0; i < count; i++) {
                 const id = col + ' ' + row;
                 result.push({
-                    x: x + hexRectangleWidth * i,
+                    x: x + HEX_RECTANGLE_WIDTH * i, // + GAP * col),
                     y,
                     color: '#389ce4',
                     col,
@@ -114,6 +96,7 @@ const App = () => {
         }
 
         setHexagon({...hexagon, settings: result, map: hexMap});
+        // eslint-disable-next-line
     }, [sizes.L, sizes.M, sizes.N, sizes]);
 
     const randColor = () => {
@@ -121,7 +104,7 @@ const App = () => {
             g = Math.floor(Math.random() * 256),
             b = Math.floor(Math.random() * 256);
 
-        return `rgb( ${r}, ${g}, ${b})`;
+        return `rgb(${r}, ${g}, ${b})`;
     };
 
     const checkHexagon = (curHex, markedHex) => {
@@ -200,7 +183,7 @@ const App = () => {
                     <div className="wrap">
                         <div onClick={onClick}>
                             {hexagon.settings.map((settings) => (
-                                <CanvasHexagon
+                                <Hexagon
                                     key={`${settings.x}:${settings.y}`}
                                     settings={settings}
                                 />

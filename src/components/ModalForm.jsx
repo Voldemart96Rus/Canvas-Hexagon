@@ -88,7 +88,9 @@ const ModalForm = ({show, onHide, updateSizes}) => {
                 >
                     Сохранить
                 </Button>
-                <Button onClick={onHide}>Отменить</Button>
+                <Button variant="dark" onClick={onHide}>
+                    Отменить
+                </Button>
             </Modal.Footer>
         </Modal>
     );

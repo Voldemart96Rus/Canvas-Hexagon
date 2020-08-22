@@ -5,10 +5,12 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
 import ModalForm from './ModalForm';
+import ModalStatistics from './ModalStatistics';
 import './Footer.css';
 
-const Footer = ({sizes, onSizesChange, onProbabilityChange}) => {
-    const [modalShow, setModalShow] = useState(false);
+const Footer = ({onSizesChange, onProbabilityChange}) => {
+    const [statisticsShow, setStatisticsShow] = useState(false);
+    const [formShow, setFormShow] = useState(false);
     const [probability, setProbability] = useState('');
 
     const isProbabilityValid = (p) => 0.01 <= p && p <= 0.99;
@@ -44,7 +46,7 @@ const Footer = ({sizes, onSizesChange, onProbabilityChange}) => {
                     />
                     <Button
                         className="mr-5"
-                        variant="dark"
+                        variant="primary"
                         type="submit"
                         disabled={!isValid}
                     >
@@ -52,14 +54,25 @@ const Footer = ({sizes, onSizesChange, onProbabilityChange}) => {
                     </Button>
                 </Form>
 
-                <Button variant="primary" onClick={() => setModalShow(true)}>
-                    Указать размеры
+                <Button
+                    variant="primary"
+                    className="mr-3"
+                    onClick={() => setFormShow(true)}
+                >
+                    Размеры
                 </Button>
-
                 <ModalForm
-                    show={modalShow}
-                    onHide={() => setModalShow(false)}
+                    show={formShow}
+                    onHide={() => setFormShow(false)}
                     updateSizes={(sizes) => onSizesChange(sizes)}
+                />
+
+                <Button variant="info" onClick={() => setStatisticsShow(true)}>
+                    Статистика
+                </Button>
+                <ModalStatistics
+                    show={statisticsShow}
+                    onHide={() => setStatisticsShow(false)}
                 />
             </Container>
         </footer>
@@ -67,7 +80,6 @@ const Footer = ({sizes, onSizesChange, onProbabilityChange}) => {
 };
 
 Footer.propTypes = {
-    sizes: PropTypes.object.isRequired,
     onSizesChange: PropTypes.func.isRequired,
     onProbabilityChange: PropTypes.func.isRequired,
 };

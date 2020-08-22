@@ -2,9 +2,60 @@
     position: fixed;
     width: 100vw;
     bottom: 0;
-    background: #ffffff80;
+    background: #ffffffd9;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.domains-count, .probability-form {
+    margin-right: 3rem;
 }
 
 .probability-input {
     width: 12rem;
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: start;
+    }
+    .domains-count, .probability-form {
+        margin-right: 0;
+    }
+    .probability-form {
+        width: 100%;
+        padding: 1rem 0;
+    }
+    .probability-input {
+        flex-grow: 1;
+    }
+    .footer-group {
+        align-self: flex-end;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 375px) {
+    .footer-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .domains-count {
+        padding-bottom: 1rem;
+    }
+    .button-group {
+        width: 100%;
+        display: flex;
+    }
+    .footer-button {
+        flex-grow: 1;
+    }
 }

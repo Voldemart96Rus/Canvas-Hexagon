@@ -64,12 +64,12 @@ const Footer = ({
 
     return (
         <footer className="footer py-4">
-            <Container className="d-flex justify-content-end align-items-center">
-                <span className="mr-5">
+            <Container className="footer-container">
+                <span className="domains-count hide-mobile">
                     Количество доменов: {hexagon.domains.size}
                 </span>
                 <Form
-                    className="d-flex align-items-center"
+                    className="probability-form d-flex align-items-center"
                     onSubmit={handleProbabilityChange}
                 >
                     <Form.Control
@@ -80,28 +80,40 @@ const Footer = ({
                         value={probability}
                         onChange={(e) => setProbability(e.target.value.trim())}
                     />
-                    <Button className="mr-5" type="submit" disabled={!isValid}>
+                    <Button type="submit" disabled={!isValid}>
                         Авто
                     </Button>
                 </Form>
-
-                <Button className="mr-3" onClick={() => setFormShow(true)}>
-                    Размеры
-                </Button>
-                <ModalForm
-                    show={formShow}
-                    onHide={() => setFormShow(false)}
-                    updateSizes={(sizes) => onSizesChange(sizes)}
-                />
-
-                <Button variant="info" onClick={() => setStatisticsShow(true)}>
-                    Статистика
-                </Button>
-                <ModalStatistics
-                    statistics={statistics}
-                    show={statisticsShow}
-                    onHide={() => setStatisticsShow(false)}
-                />
+                <div className="footer-group">
+                    <span className="domains-count show-mobile">
+                        Доменов: {hexagon.domains.size}
+                    </span>
+                    <div className="button-group">
+                        <Button
+                            className="footer-button mr-3"
+                            onClick={() => setFormShow(true)}
+                        >
+                            Размеры
+                        </Button>
+                        <ModalForm
+                            show={formShow}
+                            onHide={() => setFormShow(false)}
+                            updateSizes={(sizes) => onSizesChange(sizes)}
+                        />
+                        <Button
+                            className="footer-button"
+                            variant="info"
+                            onClick={() => setStatisticsShow(true)}
+                        >
+                            Статистика
+                        </Button>
+                        <ModalStatistics
+                            statistics={statistics}
+                            show={statisticsShow}
+                            onHide={() => setStatisticsShow(false)}
+                        />
+                    </div>
+                </div>
             </Container>
         </footer>
     );

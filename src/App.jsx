@@ -28,7 +28,7 @@ const App = () => {
         return () => {
             if (alertTimeoutId !== null) clearTimeout(alertTimeoutId);
         };
-    }, []);
+    }, [alertTimeoutId]);
 
     const showAlert = () => {
         setIsAlert(true);

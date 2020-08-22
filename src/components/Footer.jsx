@@ -18,7 +18,7 @@ const Footer = ({
     showAlert,
 }) => {
     const [statisticsShow, setStatisticsShow] = useState(false);
-    const [formShow, setFormShow] = useState(false);
+    const [formShow, setFormShow] = useState(true);
     const [probability, setProbability] = useState('');
     const [statistics, setStatistics] = useState([]);
 
@@ -65,6 +65,9 @@ const Footer = ({
     return (
         <footer className="footer py-4">
             <Container className="d-flex justify-content-end align-items-center">
+                <span className="mr-5">
+                    Количество доменов: {hexagon.domains.size}
+                </span>
                 <Form
                     className="d-flex align-items-center"
                     onSubmit={handleProbabilityChange}

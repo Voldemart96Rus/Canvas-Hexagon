@@ -2,32 +2,14 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
+import PropTypes from 'prop-types';
 
-const ModalStatistics = ({show, onHide}) => {
-    const statistics = [
-        {
-            id: Date.now(),
-            probability: 0.33,
-            domainCount: 10,
-            simpleDomainCount: 10,
-            hexCount: 30,
-            oneValueHexCount: 10,
-        },
-        {
-            id: Date.now(),
-            probability: 0.33,
-            domainCount: 10,
-            simpleDomainCount: 10,
-            hexCount: 30,
-            oneValueHexCount: 10,
-        },
-    ];
-
+const ModalStatistics = ({statistics, show, onHide}) => {
     return (
         <Modal
             show={show}
             onHide={onHide}
-            size="lg"
+            size="xl"
             aria-labelledby="contained-modal-title"
             centered
         >
@@ -35,7 +17,7 @@ const ModalStatistics = ({show, onHide}) => {
                 <Modal.Title id="contained-modal-title">Статистика</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Table striped bordered hover>
+                <Table striped bordered hover responsive>
                     <thead>
                         <tr>
                             <th>#</th>
@@ -43,7 +25,7 @@ const ModalStatistics = ({show, onHide}) => {
                             <th>Всего доменов</th>
                             <th>Неодносвязных доменов</th>
                             <th>Количество ячеек</th>
-                            <th>Количество 1 ячеек</th>
+                            <th>Количество ячеек с 1</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,10 +55,17 @@ const ModalStatistics = ({show, onHide}) => {
                 </Table>
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={onHide}>Закрыть</Button>
+                <Button variant="dark" onClick={onHide}>
+                    Закрыть
+                </Button>
             </Modal.Footer>
         </Modal>
     );
+};
+
+ModalStatistics.propTypes = {
+    show: PropTypes.bool.isRequired,
+    onHide: PropTypes.func.isRequired,
 };
 
 export default ModalStatistics;

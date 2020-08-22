@@ -97,6 +97,7 @@ const ModalForm = ({show, onHide, updateSizes}) => {
 };
 
 ModalForm.propTypes = {
+    show: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
     updateSizes: PropTypes.func.isRequired,
 };

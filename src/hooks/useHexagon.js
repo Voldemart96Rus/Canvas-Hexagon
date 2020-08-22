@@ -9,7 +9,6 @@ import {
     LESS,
     EVEN,
     MORE,
-    GAP,
     COLOR,
 } from '../constants';
 
@@ -40,7 +39,7 @@ const useHexagon = (sizes) => {
             for (let i = 0; i < count; i++) {
                 const id = col + ' ' + row;
                 settings.push({
-                    x: x + HEX_RECTANGLE_WIDTH * i - HEX_RADIUS, // + GAP * col
+                    x: x + HEX_RECTANGLE_WIDTH * i - HEX_RADIUS,
                     y,
                     color: COLOR,
                     col,
@@ -65,7 +64,7 @@ const useHexagon = (sizes) => {
             for (let i = 0; i < count; i++) {
                 const id = col + ' ' + row;
                 settings.push({
-                    x: x + HEX_RECTANGLE_WIDTH * i, // + GAP * col),
+                    x: x + HEX_RECTANGLE_WIDTH * i,
                     y,
                     color: COLOR,
                     col,
@@ -97,6 +96,17 @@ const useHexagon = (sizes) => {
 
         return `rgb(${r}, ${g}, ${b})`;
     };
+
+    const clearGrid = () =>
+        setHexagon({
+            settings: hexagon.settings.map((el) => ({
+                ...el,
+                color: COLOR,
+                value: '',
+            })),
+            domains: new Map(),
+            elementDomain: new Map(),
+        });
 
     const updateDomains = (el) => {
         const {elementDomain, domains, map} = hexagon;
@@ -173,7 +183,7 @@ const useHexagon = (sizes) => {
         setHexagon({...hexagon, domains, elementDomain, map});
     };
 
-    return {hexagon, updateDomains};
+    return {hexagon, updateDomains, clearGrid};
 };
 
 export default useHexagon;

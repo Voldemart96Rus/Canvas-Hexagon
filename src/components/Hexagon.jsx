@@ -19,7 +19,7 @@ const Hexagon = ({settings}) => {
 };
 
 Hexagon.propTypes = {
-    settings: PropTypes.object.isRequired, //todo дописать поля у settings
+    settings: PropTypes.object.isRequired,
 };
 
 export default Hexagon;

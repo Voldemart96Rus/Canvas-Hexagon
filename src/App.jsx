@@ -1,11 +1,17 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Hexagon from './components/Hexagon';
 import Footer from './components/Footer';
 import useHexagon from './hooks/useHexagon';
-import {L_INITIAL_VALUE, M_INITIAL_VALUE, N_INITIAL_VALUE} from './constants';
+import {
+    L_INITIAL_VALUE,
+    M_INITIAL_VALUE,
+    N_INITIAL_VALUE,
+    ALERT_TIMEOUT,
+} from './constants';
 import './App.css';
 
 const App = () => {
@@ -14,10 +20,22 @@ const App = () => {
         M: M_INITIAL_VALUE,
         N: N_INITIAL_VALUE,
     });
-    const [probability, setProbability] = useState(0);
-    const {hexagon, updateDomains} = useHexagon(sizes);
+    const [isAlert, setIsAlert] = useState(false);
+    const [alertTimeoutId, setAlertTimeoutId] = useState(null);
+    const {hexagon, updateDomains, clearGrid} = useHexagon(sizes);
 
-    const onClick = (e) => {
+    useEffect(() => {
+        return () => {
+            if (alertTimeoutId !== null) clearTimeout(alertTimeoutId);
+        };
+    }, []);
+
+    const showAlert = () => {
+        setIsAlert(true);
+        setAlertTimeoutId(setTimeout(() => setIsAlert(false), ALERT_TIMEOUT));
+    };
+
+    const onHexagonClick = (e) => {
         const currentHex = hexagon.map.get(e.target.id);
         updateDomains(currentHex);
     };
@@ -27,7 +45,7 @@ const App = () => {
             <main className="App">
                 <Container>
                     <div className="wrap">
-                        <div onClick={onClick}>
+                        <div onClick={onHexagonClick}>
                             {hexagon.settings.map((settings) => (
                                 <Hexagon
                                     key={`${settings.x}:${settings.y}`}
@@ -39,9 +57,17 @@ const App = () => {
                 </Container>
             </main>
             <Footer
+                hexagon={hexagon}
+                updateDomains={updateDomains}
+                clearGrid={clearGrid}
+                showAlert={showAlert}
                 onSizesChange={(sizes) => setSizes(sizes)}
-                onProbabilityChange={(p) => setProbability(p)}
             />
+            {isAlert && (
+                <Alert className="alert" variant="info">
+                    Статистика обновлена.
+                </Alert>
+            )}
         </>
     );
 };

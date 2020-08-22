@@ -30,7 +30,7 @@ const Footer = ({
             id: uuidv4(),
             probability: probability,
             domainCount: hexagon.domains.size,
-            simpleDomainCount: [...hexagon.domains.values()].filter(
+            nonTrivialDomainCount: [...hexagon.domains.values()].filter(
                 (domain) => domain.size === 1
             ).length,
             hexCount: hexagon.settings.length,

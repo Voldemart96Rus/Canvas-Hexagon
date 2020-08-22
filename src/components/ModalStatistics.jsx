@@ -35,7 +35,7 @@ const ModalStatistics = ({statistics, show, onHide}) => {
                                     id,
                                     probability,
                                     domainCount,
-                                    simpleDomainCount,
+                                    nonTrivialDomainCount,
                                     hexCount,
                                     oneValueHexCount,
                                 },
@@ -45,7 +45,7 @@ const ModalStatistics = ({statistics, show, onHide}) => {
                                     <td>{index + 1}</td>
                                     <td>{probability}</td>
                                     <td>{domainCount}</td>
-                                    <td>{simpleDomainCount}</td>
+                                    <td>{nonTrivialDomainCount}</td>
                                     <td>{hexCount}</td>
                                     <td>{oneValueHexCount}</td>
                                 </tr>

@@ -62,6 +62,7 @@ const App = () => {
                 clearGrid={clearGrid}
                 showAlert={showAlert}
                 onSizesChange={(sizes) => setSizes(sizes)}
+                sizes={sizes}
             />
             {isAlert && (
                 <Alert className="alert" variant="info">

@@ -10,12 +10,15 @@ import ModalStatistics from './ModalStatistics';
 import {MAX_RECORDS_COUNT} from '../constants';
 import './Footer.css';
 
+import {LESS, EVEN, MORE} from '../constants';
+
 const Footer = ({
     hexagon,
     onSizesChange,
     updateDomains,
     clearGrid,
     showAlert,
+    sizes,
 }) => {
     const [statisticsShow, setStatisticsShow] = useState(false);
     const [formShow, setFormShow] = useState(true);
@@ -24,15 +27,142 @@ const Footer = ({
 
     const isProbabilityValid = (p) => 0.01 <= p && p <= 0.99;
 
+    const addHexagonContour = (map) => {
+        const hexMap = new Map(map);
+        const L = sizes.L + 1;
+        const M = sizes.M + 1;
+        const N = sizes.N + 1;
+
+        const settings = [];
+
+        let count = N;
+
+        let row = 0;
+        let col = 0;
+
+        for (let l = L; l > 0; l--) {
+            for (let i = 0; i < count; i++) {
+                const id = col + ' ' + row;
+                if (!hexMap.has(id)) {
+                    settings.push({
+                        col,
+                        row,
+                        value: '',
+                        id,
+                    });
+                    hexMap.set(id, settings[settings.length - 1]);
+                }
+                col++;
+            }
+            col = 0;
+            row++;
+            count++;
+        }
+
+        count = N + L - 1;
+
+        for (let m = 1; m < M; m++) {
+            if (M - m < L) count--;
+            for (let i = 0; i < count; i++) {
+                const id = col + ' ' + row;
+                if (!hexMap.has(id)) {
+                    settings.push({
+                        col,
+                        row,
+                        value: '',
+                        id,
+                    });
+                    hexMap.set(id, settings[settings.length - 1]);
+                }
+                col++;
+            }
+            col = 0;
+            row++;
+        }
+
+        return hexMap;
+    };
+
+    const getNonTrivialDomain = (map, startId) => {
+        const stack = [map.get(startId)];
+        const encounteredDomains = new Set();
+
+        while (stack.length !== 0) {
+            const currentElement = stack.pop();
+            // При первом проходе удаляем все нулевые гексагоны,
+            // кроме тех, что изолированы внутри некоторого домена.
+            map.delete(currentElement.id);
+            let neighborOffsets;
+            if (currentElement.row < sizes.L) neighborOffsets = LESS;
+            if (currentElement.row === sizes.L) neighborOffsets = EVEN;
+            if (currentElement.row > sizes.L) neighborOffsets = MORE;
+
+            // Цикл по соседям
+            neighborOffsets.forEach(([colOffset, rowOffset]) => {
+                const neighborCoordinates = {
+                    row: currentElement.row + rowOffset,
+                    col: currentElement.col + colOffset,
+                };
+
+                const neighborId =
+                    neighborCoordinates.col + ' ' + neighborCoordinates.row;
+
+                if (map.has(neighborId)) {
+                    const neighbor = map.get(neighborId);
+                    // Если сосед не помеченный, то добавляем его в стек
+                    if (neighbor.value === '') {
+                        stack.push(neighbor);
+                    } else {
+                        // Записываем встреченный домен
+                        encounteredDomains.add(
+                            hexagon.elementDomain.get(neighborId)
+                        );
+                    }
+                }
+            });
+        }
+        const isNonTrivialDomain =
+            encounteredDomains.size === 1
+                ? {flag: true, id: encounteredDomains.values().next().value}
+                : {flag: false, id: null};
+
+        return {notVisitedMap: map, isNonTrivialDomain};
+    };
+
     const updateStatistics = (hexagon, probability) => {
         showAlert();
+        const getNonTrivialDomainCount = () => {
+            const nonTrivialDomains = new Set();
+            // Добавляем нулевой контур единичной ширины к гексагональной решетке.
+            const map = addHexagonContour(hexagon.map);
+            // Удаляем все нулевые элементы, неизолированные доменами.
+            let {notVisitedMap} = getNonTrivialDomain(map, '0 0');
+            // Идем по всем изолированным нулевым элементам.
+            let startElement = [...notVisitedMap.values()].filter(
+                (el) => el.value === ''
+            )[0];
+            while (startElement !== undefined) {
+                const result = getNonTrivialDomain(
+                    notVisitedMap,
+                    startElement.id
+                );
+                if (result.isNonTrivialDomain.flag) {
+                    nonTrivialDomains.add(result.isNonTrivialDomain.id);
+                }
+                notVisitedMap = result.notVisitedMap;
+                startElement = [...notVisitedMap.values()].filter(
+                    (el) => el.value === ''
+                )[0];
+            }
+
+            return nonTrivialDomains.size;
+        };
+
         const newRecord = {
             id: uuidv4(),
             probability: probability,
             domainCount: hexagon.domains.size,
-            nonTrivialDomainCount: [...hexagon.domains.values()].filter(
-                (domain) => domain.size === 1
-            ).length,
+            nonTrivialDomainCount: getNonTrivialDomainCount(),
             hexCount: hexagon.settings.length,
             oneValueHexCount: hexagon.settings.filter((el) => el.value === '1')
                 .length,
@@ -121,6 +251,7 @@ const Footer = ({
 
 Footer.propTypes = {
     hexagon: PropTypes.object.isRequired,
+    sizes: PropTypes.object.isRequired,
     onSizesChange: PropTypes.func.isRequired,
     updateDomains: PropTypes.func.isRequired,
     clearGrid: PropTypes.func.isRequired,

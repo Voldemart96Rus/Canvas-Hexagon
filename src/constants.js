@@ -31,7 +31,7 @@ export const MORE = [
 ];
 
 export const ALERT_TIMEOUT = 1500;
-export const MAX_RECORDS_COUNT = 3;
+export const MAX_RECORDS_COUNT = 10;
 
 export const HEXAGON_ANGLE = 0.523598776; // 30 градусов в радианах
 export const SIDE_LENGTH = 55; // Длина стороны гексагона в пикселях
